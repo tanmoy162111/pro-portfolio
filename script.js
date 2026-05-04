@@ -1,548 +1,277 @@
-document.addEventListener('DOMContentLoaded', () => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Cursor glow effect
-    const cursorGlow = document.querySelector('.cursor-glow');
-    let mouseX = 0, mouseY = 0;
-
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        gsap.to(cursorGlow, {
-            x: mouseX,
-            y: mouseY,
-            duration: 0.5,
-            ease: 'power2.out'
-        });
+window.addEventListener('load', () => {
+  if (typeof gsap === 'undefined') {
+    document.querySelectorAll('.terminal, .hero-name, .hero-roles, .hero-desc, .hero-cta, .hero-stats, .scroll-hint').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
     });
+    return;
+  }
 
-    // Navbar scroll effect
-    const navbar = document.querySelector('.navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 100) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    });
+  gsap.registerPlugin(ScrollTrigger);
 
-    // Mobile menu toggle
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    const navLinks = document.querySelector('.nav-links');
-    
-    mobileMenuBtn.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-        mobileMenuBtn.classList.toggle('active');
-    });
+  // ── Particle canvas ────────────────────────────────────────────────
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
 
-    navLinks.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            navLinks.classList.remove('active');
-            mobileMenuBtn.classList.remove('active');
-        });
-    });
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
 
-    // Hero animations
-    const heroTl = gsap.timeline({ delay: 0.3 });
-    
-    heroTl
-        .to('.hero-gradient-orb', {
-            scale: 1.2,
-            opacity: 0.8,
-            duration: 2,
-            ease: 'power2.inOut'
-        })
-        .to('.hero-badge', {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'back.out(1.7)'
-        }, '-=1.5')
-        .to('.hero-name', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out'
-        }, '-=1')
-        .to('.hero-title', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out'
-        }, '-=0.6')
-        .to('.hero-description', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out'
-        }, '-=0.6')
-        .to('.hero-cta', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out'
-        }, '-=0.6')
-        .to('.hero-stats', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out'
-        }, '-=0.5')
-        .to('.scroll-indicator', {
-            opacity: 1,
-            duration: 0.8
-        }, '-=0.3');
+  const PARTICLE_COUNT = Math.min(55, Math.floor(window.innerWidth / 22));
 
-    // Hero gradient orbs continuous animation
-    gsap.utils.toArray('.hero-gradient-orb').forEach((orb, i) => {
-        gsap.to(orb, {
-            x: `random(-50, 50)`,
-            y: `random(-50, 50)`,
-            scale: `random(0.8, 1.3)`,
-            duration: `random(4, 6)`,
-            repeat: -1,
-            yoyo: true,
-            ease: 'power1.inOut',
-            delay: i * 0.5
-        });
-    });
-
-    // Scroll indicator hide on scroll
-    ScrollTrigger.create({
-        trigger: '.hero',
-        start: 'top top',
-        end: 'bottom top',
-        onLeave: () => {
-            gsap.to('.scroll-indicator', { opacity: 0, duration: 0.3 });
-        },
-        onEnterBack: () => {
-            gsap.to('.scroll-indicator', { opacity: 1, duration: 0.3 });
-        }
-    });
-
-    // Section headers animation
-    gsap.utils.toArray('.section-header').forEach(header => {
-        const tag = header.querySelector('.section-tag');
-        const title = header.querySelector('.section-title');
-        const line = header.querySelector('.section-line');
-        
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: header,
-                start: 'top 80%',
-                toggleActions: 'play none none reverse'
-            }
-        })
-        .fromTo(tag, 
-            { opacity: 0, scale: 0.5, rotation: -180 },
-            { opacity: 1, scale: 1, rotation: 0, duration: 0.6, ease: 'back.out(1.7)' }
-        )
-        .fromTo(title,
-            { opacity: 0, y: 30, x: -20 },
-            { opacity: 1, y: 0, x: 0, duration: 0.8, ease: 'power3.out' },
-            '-=0.3'
-        )
-        .fromTo(line,
-            { scaleX: 0, transformOrigin: 'left center' },
-            { scaleX: 1, duration: 1, ease: 'power3.out' },
-            '-=0.5'
-        );
-    });
-
-    // About section animations
-    gsap.utils.toArray('.about-card').forEach((card, i) => {
-        gsap.fromTo(card,
-            { opacity: 0, y: 40, scale: 0.95 },
-            {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                duration: 0.8,
-                delay: i * 0.2,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: '.about-section',
-                    start: 'top 70%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    gsap.fromTo('.about-info-grid',
-        { opacity: 0, y: 30 },
-        {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            delay: 0.4,
-            ease: 'power3.out',
-            scrollTrigger: {
-                trigger: '.about-section',
-                start: 'top 70%',
-                toggleActions: 'play none none reverse'
-            }
-        }
-    );
-
-    gsap.fromTo('.about-visual',
-        { opacity: 0, x: 50, scale: 0.9 },
-        {
-            opacity: 1,
-            x: 0,
-            scale: 1,
-            duration: 1,
-            ease: 'power3.out',
-            scrollTrigger: {
-                trigger: '.about-section',
-                start: 'top 70%',
-                toggleActions: 'play none none reverse'
-            }
-        }
-    );
-
-    // Tech constellation animation
-    gsap.utils.toArray('.tech-node').forEach((node, i) => {
-        gsap.fromTo(node,
-            { opacity: 0, scale: 0, rotation: -180 },
-            {
-                opacity: 1,
-                scale: 1,
-                rotation: 0,
-                duration: 0.8,
-                delay: 0.5 + i * 0.1,
-                ease: 'back.out(1.7)',
-                scrollTrigger: {
-                    trigger: '.about-visual',
-                    start: 'top 80%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    // Constellation lines animation
-    gsap.utils.toArray('.constellation-line').forEach((line, i) => {
-        gsap.fromTo(line,
-            { scaleX: 0, opacity: 0 },
-            {
-                scaleX: 1,
-                opacity: 0.3,
-                duration: 1,
-                delay: 0.8 + i * 0.1,
-                ease: 'power3.out',
-                transformOrigin: 'left center',
-                scrollTrigger: {
-                    trigger: '.about-visual',
-                    start: 'top 80%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    // Skills section animation
-    gsap.utils.toArray('.skill-category').forEach((cat, i) => {
-        gsap.fromTo(cat,
-            { opacity: 0, y: 50, scale: 0.9 },
-            {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                duration: 0.8,
-                delay: i * 0.15,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: '.skills-section',
-                    start: 'top 70%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    // Timeline animations
-    gsap.utils.toArray('.timeline-item').forEach((item, i) => {
-        gsap.fromTo(item,
-            { opacity: 0, x: -50, scale: 0.95 },
-            {
-                opacity: 1,
-                x: 0,
-                scale: 1,
-                duration: 1,
-                delay: i * 0.2,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: item,
-                    start: 'top 80%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    // Timeline line animation
-    gsap.fromTo('.timeline-line',
-        { scaleY: 0, transformOrigin: 'top center' },
-        {
-            scaleY: 1,
-            duration: 2,
-            ease: 'power3.out',
-            scrollTrigger: {
-                trigger: '.timeline',
-                start: 'top 80%',
-                end: 'bottom 20%',
-                scrub: 1
-            }
-        }
-    );
-
-    // Project cards animation
-    gsap.utils.toArray('.project-card').forEach((card, i) => {
-        gsap.fromTo(card,
-            { opacity: 0, y: 50, rotationX: 15 },
-            {
-                opacity: 1,
-                y: 0,
-                rotationX: 0,
-                duration: 0.8,
-                delay: i * 0.2,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: '.projects-section',
-                    start: 'top 70%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    // Contact section animations
-    gsap.utils.toArray('.contact-info p, .contact-links').forEach((el, i) => {
-        gsap.fromTo(el,
-            { opacity: 0, y: 30 },
-            {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                delay: i * 0.2,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: '.contact-section',
-                    start: 'top 70%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    gsap.fromTo('.contact-form, .contact-cta',
-        { opacity: 0, x: 50, scale: 0.95 },
-        {
-            opacity: 1,
-            x: 0,
-            scale: 1,
-            duration: 1,
-            ease: 'power3.out',
-            scrollTrigger: {
-                trigger: '.contact-section',
-                start: 'top 70%',
-                toggleActions: 'play none none reverse'
-            }
-        }
-    );
-
-    // Smooth scroll for nav links
-    document.querySelectorAll('.nav-links a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const target = document.querySelector(targetId);
-            if (target) {
-                const offset = 80;
-                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-
-    // Scroll spy for nav links
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
-    
-    function highlightNavLink() {
-        let scrollPos = window.pageYOffset + 100;
-        
-        sections.forEach(section => {
-            const top = section.offsetTop;
-            const height = section.offsetHeight;
-            const id = section.getAttribute('id');
-            
-            if (scrollPos >= top && scrollPos < top + height) {
-                navLinks.forEach(link => {
-                    link.style.color = '';
-                    if (link.getAttribute('href') === `#${id}`) {
-                        link.style.color = 'var(--primary-light)';
-                    }
-                });
-            }
-        });
+  class Dot {
+    constructor() { this.init(); }
+    init() {
+      this.x  = Math.random() * canvas.width;
+      this.y  = Math.random() * canvas.height;
+      this.r  = Math.random() * 1.4 + 0.4;
+      this.vx = (Math.random() - .5) * .28;
+      this.vy = (Math.random() - .5) * .28;
+      this.a  = Math.random() * .35 + .08;
+      this.c  = Math.random() > .5 ? '0,255,136' : '0,212,255';
     }
-    
-    window.addEventListener('scroll', highlightNavLink);
+    step() {
+      this.x += this.vx;
+      this.y += this.vy;
+      if (this.x < 0 || this.x > canvas.width)  this.vx *= -1;
+      if (this.y < 0 || this.y > canvas.height)  this.vy *= -1;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.c},${this.a})`;
+      ctx.fill();
+    }
+  }
 
-    // Form submission
-    const contactForm = document.getElementById('contactForm');
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const btn = contactForm.querySelector('button');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<span>Message Sent!</span>';
-        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-        
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = '';
-            contactForm.reset();
-        }, 3000);
-    });
+  const dots = Array.from({ length: PARTICLE_COUNT }, () => new Dot());
 
-    // Parallax effect on mesh background
-    gsap.to('.mesh-bg', {
-        y: -100,
-        ease: 'none',
-        scrollTrigger: {
-            trigger: 'body',
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 0.5
+  const LINK_DIST = 110;
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < dots.length; i++) {
+      dots[i].step();
+      dots[i].draw();
+      for (let j = i + 1; j < dots.length; j++) {
+        const dx = dots[i].x - dots[j].x;
+        const dy = dots[i].y - dots[j].y;
+        const d  = Math.sqrt(dx * dx + dy * dy);
+        if (d < LINK_DIST) {
+          ctx.beginPath();
+          ctx.moveTo(dots[i].x, dots[i].y);
+          ctx.lineTo(dots[j].x, dots[j].y);
+          ctx.strokeStyle = `rgba(0,255,136,${(1 - d / LINK_DIST) * .12})`;
+          ctx.lineWidth = .5;
+          ctx.stroke();
         }
-    });
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
 
-    // Skill tags hover animation
-    document.querySelectorAll('.skill-tag').forEach(tag => {
-        tag.addEventListener('mouseenter', () => {
-            gsap.to(tag, { 
-                scale: 1.15, 
-                duration: 0.3, 
-                ease: 'back.out(1.7)',
-                backgroundColor: 'rgba(99, 102, 241, 0.3)'
-            });
+  // ── Cursor glow ─────────────────────────────────────────────────────
+  const glow = document.getElementById('cursorGlow');
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  let gx = mx, gy = my;
+
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  (function trackGlow() {
+    gx += (mx - gx) * .07;
+    gy += (my - gy) * .07;
+    glow.style.left = gx + 'px';
+    glow.style.top  = gy + 'px';
+    requestAnimationFrame(trackGlow);
+  })();
+
+  // ── Terminal typing ─────────────────────────────────────────────────
+  const LINES = [
+    '> initializing system...',
+    '> loading profile: tanmoy_kumar_saha',
+    '> domains: full-stack · AI · security',
+    '> status: AVAILABLE_FOR_HIRE ✓',
+  ];
+
+  const textEl   = document.getElementById('terminalText');
+  const cursorEl = document.getElementById('tCursor');
+  let lineIdx = 0, charIdx = 0, built = '';
+
+  function type() {
+    if (lineIdx >= LINES.length) {
+      cursorEl.style.display = 'none';
+      return;
+    }
+    const line = LINES[lineIdx];
+    if (charIdx < line.length) {
+      built += line[charIdx++];
+      textEl.textContent = built;
+      setTimeout(type, 32);
+    } else {
+      built += '\n';
+      textEl.textContent = built;
+      lineIdx++; charIdx = 0;
+      setTimeout(type, 180);
+    }
+  }
+
+  // ── Hero entrance ───────────────────────────────────────────────────
+  gsap.timeline({ onComplete: type })
+    .to('.terminal',   { opacity: 1, y: 0, duration: .6, ease: 'power2.out' })
+    .to('.hero-name',  { opacity: 1, y: 0, duration: .5, ease: 'power2.out' }, '-=.1')
+    .to('.hero-roles', { opacity: 1, y: 0, duration: .4, ease: 'power2.out' }, '-=.1')
+    .to('.hero-desc',  { opacity: 1, y: 0, duration: .4, ease: 'power2.out' }, '-=.1')
+    .to('.hero-cta',   { opacity: 1, y: 0, duration: .4, ease: 'power2.out' }, '-=.1')
+    .to('.hero-stats', { opacity: 1, y: 0, duration: .4, ease: 'power2.out' }, '-=.1')
+    .to('.scroll-hint',{ opacity: 1, duration: .4, ease: 'power2.out' }, '-=.05');
+
+  // ── Stat counters ───────────────────────────────────────────────────
+  function countUp(el, target, ms) {
+    const start = performance.now();
+    (function tick(now) {
+      const p  = Math.min((now - start) / ms, 1);
+      const ep = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.floor(ep * target);
+      if (p < 1) requestAnimationFrame(t => tick(t));
+      else el.textContent = target;
+    })(start);
+  }
+
+  ScrollTrigger.create({
+    trigger: '.hero-stats',
+    start: 'top 82%',
+    once: true,
+    onEnter() {
+      document.querySelectorAll('.stat-num').forEach(el => {
+        countUp(el, parseInt(el.dataset.target), 1200);
+      });
+    }
+  });
+
+  // ── Navbar scroll state ─────────────────────────────────────────────
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 70);
+  }, { passive: true });
+
+  // ── Active nav link via IntersectionObserver ────────────────────────
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const sections = document.querySelectorAll('section[id]');
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
         });
-        tag.addEventListener('mouseleave', () => {
-            gsap.to(tag, { 
-                scale: 1, 
-                duration: 0.3, 
-                ease: 'power3.out',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)'
-            });
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+
+  sections.forEach(s => io.observe(s));
+
+  // ── Mobile menu ─────────────────────────────────────────────────────
+  const mobileBtn  = document.getElementById('mobileBtn');
+  const navLinksEl = document.getElementById('navLinks');
+
+  mobileBtn.addEventListener('click', () => {
+    const open = navLinksEl.classList.toggle('open');
+    mobileBtn.classList.toggle('open', open);
+    mobileBtn.setAttribute('aria-expanded', String(open));
+  });
+
+  navLinksEl.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      navLinksEl.classList.remove('open');
+      mobileBtn.classList.remove('open');
+      mobileBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // ── Smooth scroll (offset for fixed nav) ───────────────────────────
+  const NAV_H = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'));
+
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const href = a.getAttribute('href');
+      if (href === '#') return;
+      const target = document.querySelector(href);
+      if (!target) return;
+      e.preventDefault();
+      window.scrollTo({ top: target.offsetTop - NAV_H, behavior: 'smooth' });
+    });
+  });
+
+  // ── Scroll reveal setup ─────────────────────────────────────────────
+  // Mark elements with js- classes then animate
+  const mark = (sel, cls) => document.querySelectorAll(sel).forEach(el => el.classList.add(cls));
+
+  mark('.section-eyebrow, .section-title', 'js-reveal');
+  mark('.about-text', 'js-reveal-left');
+  mark('.about-cards', 'js-reveal-right');
+  mark('.skill-cat', 'js-reveal');
+  mark('.timeline-item, .edu-card', 'js-reveal-left');
+  mark('.proj-card', 'js-reveal-scale');
+  mark('.contact-desc, .contact-item', 'js-reveal');
+
+  // Generic vertical reveal
+  gsap.utils.toArray('.js-reveal').forEach(el => {
+    gsap.to(el, {
+      opacity: 1, y: 0, duration: .6, ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 87%', once: true }
+    });
+  });
+
+  // Left reveal
+  gsap.utils.toArray('.js-reveal-left').forEach(el => {
+    gsap.to(el, {
+      opacity: 1, x: 0, duration: .65, ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 87%', once: true }
+    });
+  });
+
+  // Right reveal
+  gsap.utils.toArray('.js-reveal-right').forEach(el => {
+    gsap.to(el, {
+      opacity: 1, x: 0, duration: .65, ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 87%', once: true }
+    });
+  });
+
+  // Scale reveal — project cards stagger by grid column position
+  gsap.utils.toArray('.js-reveal-scale').forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1, scale: 1, duration: .5, ease: 'power2.out',
+      delay: (i % 3) * .07,
+      scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+    });
+  });
+
+  // Skill tag bounce-in per category
+  document.querySelectorAll('.skill-cat').forEach(cat => {
+    ScrollTrigger.create({
+      trigger: cat, start: 'top 82%', once: true,
+      onEnter() {
+        gsap.from(cat.querySelectorAll('.tag'), {
+          opacity: 0, y: 8, scale: .88,
+          duration: .28, stagger: .045, ease: 'back.out(1.6)'
         });
+      }
     });
+  });
 
-    // Project cards tilt and glow effect
-    document.querySelectorAll('.project-card').forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = (y - centerY) / 8;
-            const rotateY = (centerX - x) / 8;
-            
-            gsap.to(card, {
-                rotateX: rotateX,
-                rotateY: rotateY,
-                duration: 0.3,
-                ease: 'power2.out',
-                transformPerspective: 1000
-            });
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-                rotateX: 0,
-                rotateY: 0,
-                duration: 0.5,
-                ease: 'power3.out'
-            });
-        });
-    });
-
-    // Stat number counter animation - only animate when scrolled to, keep visible
-    gsap.utils.toArray('.stat-number[data-value]').forEach(stat => {
-        const finalText = stat.textContent;
-        const number = parseInt(stat.dataset.value);
-        
-        // Keep the number visible immediately
-        gsap.set(stat, { opacity: 1 });
-        
-        // Animate count on scroll
-        gsap.fromTo(stat,
-            { textContent: 0 },
-            {
-                textContent: number,
-                duration: 2,
-                ease: 'power2.out',
-                snap: { textContent: 1 },
-                scrollTrigger: {
-                    trigger: stat,
-                    start: 'top 80%',
-                    toggleActions: 'play none none reverse'
-                },
-                onUpdate: function() {
-                    stat.textContent = Math.floor(this.targets()[0].textContent) + (finalText.includes('+') ? '+' : '');
-                }
-            }
-        );
-    });
-
-    // Info items staggered animation
-    gsap.utils.toArray('.info-item').forEach((item, i) => {
-        gsap.fromTo(item,
-            { opacity: 0, y: 20, scale: 0.9 },
-            {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                duration: 0.6,
-                delay: i * 0.1,
-                ease: 'back.out(1.7)',
-                scrollTrigger: {
-                    trigger: '.about-info-grid',
-                    start: 'top 80%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    // Contact links animation
-    gsap.utils.toArray('.contact-link').forEach((link, i) => {
-        gsap.fromTo(link,
-            { opacity: 0, x: -30 },
-            {
-                opacity: 1,
-                x: 0,
-                duration: 0.6,
-                delay: i * 0.15,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: '.contact-links',
-                    start: 'top 80%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
-
-    // Page load animation
-    gsap.from('body', {
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power2.out'
-    });
+  // Timeline line draw
+  ScrollTrigger.create({
+    trigger: '.timeline', start: 'top 74%', once: true,
+    onEnter() {
+      const line = document.getElementById('timelineLine');
+      const full = line.parentElement.offsetHeight - 12;
+      gsap.to(line, { height: full, duration: 1.1, ease: 'power2.inOut' });
+    }
+  });
 });
