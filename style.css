@@ -946,6 +946,33 @@ body:hover .cursor-glow {
     background-clip: text;
 }
 
+.contact-cta {
+    padding: 2rem;
+    opacity: 0;
+    transform: translateX(30px);
+    text-align: center;
+}
+
+.contact-cta h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.contact-cta p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.contact-cta .btn {
+    margin-top: 1rem;
+}
+
 .form-group {
     margin-bottom: 1.5rem;
 }

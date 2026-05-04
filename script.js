@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     });
 
-    gsap.fromTo('.contact-form',
+    gsap.fromTo('.contact-form, .contact-cta',
         { opacity: 0, x: 50, scale: 0.95 },
         {
             opacity: 1,
@@ -353,22 +353,46 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Smooth scroll for nav links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    document.querySelectorAll('.nav-links a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const targetId = this.getAttribute('href');
+            const target = document.querySelector(targetId);
             if (target) {
-                gsap.to(window, {
-                    duration: 1.2,
-                    scrollTo: {
-                        y: target,
-                        offsetY: 80
-                    },
-                    ease: 'power3.inOut'
+                const offset = 80;
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
                 });
             }
         });
     });
+
+    // Scroll spy for nav links
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+    
+    function highlightNavLink() {
+        let scrollPos = window.pageYOffset + 100;
+        
+        sections.forEach(section => {
+            const top = section.offsetTop;
+            const height = section.offsetHeight;
+            const id = section.getAttribute('id');
+            
+            if (scrollPos >= top && scrollPos < top + height) {
+                navLinks.forEach(link => {
+                    link.style.color = '';
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.style.color = 'var(--primary-light)';
+                    }
+                });
+            }
+        });
+    }
+    
+    window.addEventListener('scroll', highlightNavLink);
 
     // Form submission
     const contactForm = document.getElementById('contactForm');
@@ -448,31 +472,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Stat number counter animation
-    gsap.utils.toArray('.stat-number').forEach(stat => {
+    // Stat number counter animation - only animate when scrolled to, keep visible
+    gsap.utils.toArray('.stat-number[data-value]').forEach(stat => {
         const finalText = stat.textContent;
-        const hasInfinity = finalText.includes('∞');
+        const number = parseInt(stat.dataset.value);
         
-        if (!hasInfinity) {
-            const number = parseInt(finalText);
-            gsap.fromTo(stat,
-                { textContent: 0 },
-                {
-                    textContent: number,
-                    duration: 2,
-                    ease: 'power2.out',
-                    snap: { textContent: 1 },
-                    scrollTrigger: {
-                        trigger: stat,
-                        start: 'top 80%',
-                        toggleActions: 'play none none reverse'
-                    },
-                    onUpdate: function() {
-                        stat.textContent = Math.floor(this.targets()[0].textContent) + (finalText.includes('+') ? '+' : '');
-                    }
+        // Keep the number visible immediately
+        gsap.set(stat, { opacity: 1 });
+        
+        // Animate count on scroll
+        gsap.fromTo(stat,
+            { textContent: 0 },
+            {
+                textContent: number,
+                duration: 2,
+                ease: 'power2.out',
+                snap: { textContent: 1 },
+                scrollTrigger: {
+                    trigger: stat,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                onUpdate: function() {
+                    stat.textContent = Math.floor(this.targets()[0].textContent) + (finalText.includes('+') ? '+' : '');
                 }
-            );
-        }
+            }
+        );
     });
 
     // Info items staggered animation
